@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 echo "BUILD START"
 pip install setuptools
 pip install build_files.sh

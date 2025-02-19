@@ -20,12 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+import os
+import dj_database_url
 SECRET_KEY = 'django-insecure-@b#34hr*lp14&-bwosl+k(3isoi&vf4-xkqp7d2+#+c0^rwoo3'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECRET_KEY = os.environ.get("SECRET_KEY")
+DEBUG = os.environ.get("DEBUG") != "False"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [".vercel.app", ".now.sh", "*"]
 
 
 # Application definition
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,7 +57,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/"templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,12 +76,57 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+
+
+
+# Use ElephantSQL (or another hosted DB) for production since Vercel’s default file system isn’t persistent
+
+# import environ
+
+
+# env = environ.Env()
+
+# environ.Env.read_env()
+# import dj_database_url
+
+
+
+import dj_database_url
+
+
+from decouple import config
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME':config("DB_NAME"),
+        'USER' :config("DB_USER"),
+        'PASSWORD' :config("DB_PASSWORD"),
+        'HOST' :config("DB_HOST"),
+        'PORT' :config("DB_PORT"),
     }
 }
+
+
+
+STATIC_URL = 'static/'
+# STATIC_ROOT = os.path.join(BASE_DIR,'static')
+# STATICFILES_DIRS = os.path.join(BASE_DIR,'staticfiles')
+STATIC_ROOT = BASE_DIR/'staticfiles'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static"
+]
+
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation

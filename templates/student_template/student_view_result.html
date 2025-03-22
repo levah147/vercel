@@ -1,0 +1,79 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+
+{% block page_title %}{{ page_title }}{% endblock page_title %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card">
+    <!-- Header Section -->
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <div>
+        <img src="{% static 'dist/img/2.png' %}" alt="School Logo" style="max-height: 120px;">
+      </div>
+      <div class="text-center flex-grow-1">
+        {% if request.user.profile_pic %}
+        <img src="{{ request.user.profile_pic}}" alt="Student Image" style="max-height: 120px;">
+      {% else %}
+        <img src="{% static 'dist/img/avatar5.png' %}" alt="Default Student Image" style="max-height: 120px;">
+      {% endif %}
+      </div>
+      <div class="no-print">
+        <div class="col-md-3 text-right no-print">
+          <button class="btn btn-outline-primary" onclick="window.print()">Print Result</button>
+        </div>
+        
+        <a href="{% url 'student_result_pdf' %}" target="_blank" class="btn btn-primary">Print PDF</a>
+      </div>
+    </div>
+    <!-- Card Body -->
+    <div class="card-body">
+        {% comment %} <h3 class="card-title mb-0">My Result Detail</h3> {% endcomment %}
+        <p class="text-muted">Student Name: {{ student.admin.first_name }} {{ student.admin.last_name }}</p>
+        <p class="text-muted">Session: {{ student.session }}</p>
+      {% if summary and summary.total_score|floatformat:"2" != "0.00" %}
+        <h4>Result Summary</h4>
+        <p><strong>Total Score:</strong> {{ summary.total_score }}</p>
+        <p><strong>Average Score:</strong> {{ summary.average_score|floatformat:"2" }}</p>
+        <p><strong>Position:</strong> {{ summary.position }}</p>
+        <p><strong>Grade:</strong> {{ summary.grade }}</p>
+        <p><strong>Teacher's Remarks:</strong> {{ summary.teacher_remarks }}</p>
+      {% else %}
+        <p class="text-warning">No summary available.</p>
+      {% endif %}
+      <hr>
+      <h4>Subject Results</h4>
+      {% if results %}
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="thead-light">
+              <tr>
+                <th>Subject</th>
+                <th>CA Test 1 (0–30)</th>
+                <th>CA Test 2 (0–10)</th>
+                <th>Exam (0–60)</th>
+                <th>Total Score</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for result in results %}
+                <tr>
+                  <td>{{ result.subject.name }}</td>
+                  <td>{{ result.ca_test1 }}</td>
+                  <td>{{ result.ca_test2 }}</td>
+                  <td>{{ result.exam_score }}</td>
+                  <td>{{ result.total_score }}</td>
+                  <td>{{ result.grade }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No subject results available.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

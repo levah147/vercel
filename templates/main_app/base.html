@@ -1,0 +1,316 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Student Management System</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css'%} ">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bbootstrap 4 -->
+    <link rel="stylesheet"
+        href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css'%} ">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css'%} ">
+    <!-- JQVMap -->
+    <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css'%} ">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css'%} ">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css'%} ">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css'%} ">
+    <!-- summernote -->
+    <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.css'%} ">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'dist/img/1.png' %}" type="image/x-icon">
+    {% block custom_css %}
+
+    {% endblock custom_css %}
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+                </li>
+
+            </ul>
+          
+            {% comment %} <ul class="navbar-nav ml-auto">
+              <!-- HOD Notifications Dropdown Menu -->
+              <li class="nav-item dropdown">
+                {% if request.user.user_type == '1' %}
+                {% url 'ajax_get_notifications_hod' as ajax_get_notifications_all_url %}
+
+                {% elif request.user.user_type == '2' %}
+                
+                {% url 'ajax_staff_notifications' as ajax_get_notifications_all_url %}
+                {% elif request.user.user_type == '3' %}
+
+                {% url 'ajax_get_notifications_student' as ajax_get_notifications_all_url %}
+                {% endif %}
+                <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                  <i class="fas fa-bell"></i>
+                  <span id="notificationBadge" class="badge badge-danger">0</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="notificationDropdown" style="left: inherit; right: 0px;">
+                  <span class="dropdown-item">Loading notifications...</span>
+                </div>
+              </li>
+            </ul>
+            <!-- Include jQuery if not already included -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+              function updateNotifications() {
+                $.ajax({
+                  url: "{{ ajax_get_notifications_all_url }}",
+                  method: "GET",
+                  dataType: "json",
+                  success: function(data) {
+                    // Update the badge with the number of unread notifications.
+                    $("#notificationBadge").text(data.length);
+                    
+                    // Clear the dropdown.
+                    var dropdown = $("#notificationDropdown");
+                    dropdown.empty();
+                    
+                    if (data.length > 0) {
+                      data.forEach(function(notification) {
+                        var li = $("<a></a>")
+                          .attr("href", "#")
+                          .addClass("dropdown-item")
+                          .text(notification.message);
+                        dropdown.append(li);
+                      });
+                    } else {
+                      dropdown.html('<span class="dropdown-item">No new notifications</span>');
+                    }
+                  },
+                  error: function(xhr, status, error) {
+                    console.error("Error fetching notifications:", error);
+                  }
+                });
+              }
+            
+              $(document).ready(function() {
+                // Update notifications immediately on page load.
+                updateNotifications();
+                // Refresh notifications every 60 seconds.
+                setInterval(updateNotifications, 6000);
+            
+                // When the dropdown is shown, mark notifications as read.
+                $(".nav-item.dropdown").on("show.bs.dropdown", function() {
+                  $.ajax({
+                    url: "{% url 'ajax_mark_notifications_read_hod' %}",
+                    method: "POST",
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    success: function() {
+                      $("#notificationBadge").text("0");
+                    },
+                    error: function(xhr, status, error) {
+                      console.error("Error marking notifications as read:", error);
+                    }
+                  });
+                });
+              });
+            </script>  {% endcomment %}
+            
+       
+          <ul class="navbar-nav ml-auto">
+  <!-- Notifications Dropdown Menu -->
+  <li class="nav-item dropdown">
+    {% if request.user.user_type == '1' %}
+      {% url 'ajax_get_notifications_hod' as ajax_get_notifications_all_url %}
+      {% url 'ajax_mark_notifications_read_hod' as ajax_mark_notifications_read_all_url %}
+    {% elif request.user.user_type == '2' %}
+      {% url 'ajax_staff_notifications' as ajax_get_notifications_all_url %}
+      {% url 'ajax_mark_notifications_read_staff' as ajax_mark_notifications_read_all_url %}
+    {% elif request.user.user_type == '3' %}
+      {% url 'ajax_get_notifications_student' as ajax_get_notifications_all_url %}
+      {% url 'ajax_mark_notifications_read_student' as ajax_mark_notifications_read_all_url %}
+    {% endif %}
+
+    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+      <i class="fas fa-bell"></i>
+      <span id="notificationBadge" class="badge badge-danger">0</span>
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="notificationDropdown" style="left: inherit; right: 0px;">
+      <span class="dropdown-item">Loading notifications...</span>
+    </div>
+  </li>
+</ul>
+
+<!-- jQuery (ensure it's included if not already) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  function updateNotifications() {
+    $.ajax({
+      url: "{{ ajax_get_notifications_all_url }}",
+      method: "GET",
+      dataType: "json",
+      success: function(data) {
+        // Update badge count
+        $("#notificationBadge").text(data.unread_count);
+
+        // Clear previous notifications
+        var dropdown = $("#notificationDropdown");
+        dropdown.empty();
+
+        if (data.notifications.length > 0) {
+          data.notifications.forEach(function(notification) {
+            var li = $("<a></a>")
+              .attr("href", "#")
+              .addClass("dropdown-item")
+              .html("<strong>" + notification.type + ":</strong> " + notification.message);
+            dropdown.append(li);
+          });
+        } else {
+          dropdown.html('<span class="dropdown-item">No new notifications</span>');
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error("Error fetching notifications:", error);
+      }
+    });
+  }
+
+  $(document).ready(function() {
+    updateNotifications();
+    setInterval(updateNotifications, 60000); // Update every 60 seconds
+    
+    // When dropdown opens, mark notifications as read dynamically
+    $(".nav-item.dropdown").on("show.bs.dropdown", function() {
+      $.ajax({
+        url: "{{ ajax_mark_notifications_read_all_url }}",
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        success: function() {
+          $("#notificationBadge").text("0");
+        }
+      });
+    });
+  });
+</script>
+
+        
+
+
+        </nav>
+        <!-- /.navbar -->
+
+        <!-- Main Sidebar Container -->
+          
+ 
+        {% include "main_app/sidebar_template.html" with user=user %}
+
+      
+        <div class="content-wrapper">
+
+            <!-- Content Wrapper. Contains page content -->
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0 text-dark">{% block page_title %}{% endblock page_title %}</h1>
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active">{{ page_title }}</li>
+                            </ol>
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+
+            <!-- Main content -->
+            
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+            <div class="form-group">
+                {% if messages %}
+                {% for message in messages  %}
+    
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success">
+                    {{message}}
+                </div>
+                {% else %}
+                <div class="alert alert-danger">
+                    {{message}}
+                </div>
+                {% endif %}
+    
+                {% endfor %}
+                {% endif %}
+            </div>
+            </div></div></div></section>
+            {% block content %}
+
+            {% endblock content %}
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        {% include "main_app/footer.html" %}
+
+
+    </div>
+    <!-- ./wrapper -->
+    <!-- jQuery -->
+    <script src="{% static 'plugins/jquery/jquery.min.js'%} "></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="{% static 'plugins/jquery-ui/jquery-ui.min.js'%} "></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button)
+    </script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js'%} "></script>
+    <!-- ChartJS -->
+    <script src="{% static 'plugins/chart.js/Chart.min.js'%} "></script>
+    <!-- Sparkline -->
+    <script src="{% static 'plugins/sparklines/sparkline.js'%} "></script>
+    <!-- JQVMap -->
+    <script src="{% static 'plugins/jqvmap/jquery.vmap.min.js'%} "></script>
+    <script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js'%} "></script>
+    <!-- jQuery Knob Chart -->
+    <script src="{% static 'plugins/jquery-knob/jquery.knob.min.js'%} "></script>
+    <!-- daterangepicker -->
+    <script src="{% static 'plugins/moment/moment.min.js'%} "></script>
+    <script src="{% static 'plugins/daterangepicker/daterangepicker.js'%} "></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js'%} "></script>
+    <!-- Summernote -->
+    <script src="{% static 'plugins/summernote/summernote-bs4.min.js'%} "></script>
+    <!-- overlayScrollbars -->
+    <script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js'%} "></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'dist/js/adminlte.js'%} "></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="{% static 'dist/js/pages/dashboard.js'%} "></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="{% static 'dist/js/demo.js'%} "></script>
+    {% block custom_js %}
+
+    {% endblock custom_js %}
+</body>
+
+</html>
